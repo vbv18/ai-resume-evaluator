@@ -89,7 +89,9 @@ class EvaluationResult(BaseModel):
 
 
 class EvaluationResponse(BaseModel):
-    """Full API response, including intermediate extracted data for transparency/debugging."""
+    """
+    Full API response, including intermediate extracted data for transparency/debugging.
+    """
 
     resume_data: ResumeData
     job_description_data: JobDescriptionData
