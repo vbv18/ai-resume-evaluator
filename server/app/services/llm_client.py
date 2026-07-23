@@ -44,14 +44,22 @@ class LLMClient:
             ],
         )
 
-        return response.choices[0].message.content or ""
+        return {
+            "content": response.choices[0].message.content or "",
+            "usage": {
+                "prompt_tokens": response.usage.prompt_tokens,
+                "completion_tokens": response.usage.completion_tokens,
+                "total_tokens": response.usage.total_tokens,
+            },
+        }
 
     async def get_json_completion(
         self, *, system_prompt: str, user_content: str
     ) -> dict:
         try:
-            raw = await self._create_completion(
-                system_prompt=system_prompt, user_content=user_content
+            result = await self._create_completion(
+                system_prompt=system_prompt,
+                user_content=user_content,
             )
         except (APITimeoutError, RateLimitError, APIError) as exc:
             logger.error(
@@ -63,9 +71,14 @@ class LLMClient:
             ) from exc
 
         try:
-            return json.loads(raw)
+            return {
+                "data": json.loads(result["content"]),
+                "usage": result["usage"],
+            }
         except json.JSONDecodeError as exc:
-            logger.error("llm_returned_invalid_json", raw_response=raw[:500])
+            logger.error(
+                "llm_returned_invalid_json", raw_response=result["content"][:500]
+            )
             raise LLMProviderError(
                 "The AI provider returned a malformed response.",
             ) from exc
