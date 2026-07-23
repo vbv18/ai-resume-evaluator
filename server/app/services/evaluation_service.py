@@ -28,7 +28,10 @@ async def evaluate_match(
             system_prompt=EVALUATION_PROMPT, user_content=comparison_payload
         )
         try:
-            return EvaluationResult.model_validate(payload)
+            return (
+                EvaluationResult.model_validate(payload["data"]),
+                payload["usage"],
+            )
         except ValidationError as exc:
             last_error = exc
             logger.warning(

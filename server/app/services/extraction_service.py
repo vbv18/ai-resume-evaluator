@@ -28,7 +28,10 @@ async def _extract_and_validate(
             system_prompt=system_prompt, user_content=content
         )
         try:
-            return model_cls.model_validate(payload)
+            return (
+                model_cls.model_validate(payload["data"]),
+                payload["usage"],
+            )
         except ValidationError as exc:
             last_error = exc
             logger.warning(

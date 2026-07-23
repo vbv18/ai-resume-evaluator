@@ -72,7 +72,7 @@ class LLMClient:
 
         try:
             return {
-                "data": json.loads(result["content"]),
+                "data" : json.loads(result["content"]),
                 "usage": result["usage"],
             }
         except json.JSONDecodeError as exc:
