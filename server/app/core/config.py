@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     max_input_tokens: int = 6000
     request_timeout_seconds: int = 30
 
-    cors_origin: str = "http;//localhost:5173"
+    cors_origins: str = "http://localhost:5173"
     log_level: str = "INFO"
 
     @property

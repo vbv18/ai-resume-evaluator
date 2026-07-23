@@ -2,7 +2,7 @@ from pydantic import ValidationError
 from app.core.exceptions import LLMResponseValidationError
 from app.core.logging import get_logger
 from app.models.schemas import EvaluationResult, JobDescriptionData, ResumeData
-from app.prompts.prompts import EVALUATION_PROMPT
+from app.lib.prompts import EVALUATION_PROMPT
 from app.services.llm_client import LLMClient
 
 logger = get_logger(__name__)
