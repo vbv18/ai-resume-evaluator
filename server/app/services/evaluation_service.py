@@ -15,7 +15,7 @@ async def evaluate_match(
     *,
     resume_data: ResumeData,
     job_description_data: JobDescriptionData,
-) -> EvaluationResult:
+) -> tuple[EvaluationResult, dict]:
     comparison_payload = (
         f"RESUME_DATA:\n{resume_data.model_dump_json()}\n\n"
         f"JOB_DESCRIPTION_DATA:\n{job_description_data.model_dump_json()}"

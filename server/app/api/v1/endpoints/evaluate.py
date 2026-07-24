@@ -1,5 +1,4 @@
 import asyncio
-from fileinput import filename
 
 from fastapi import APIRouter, Depends, Form, Request, UploadFile, status
 
@@ -19,6 +18,8 @@ from app.services.token_estimator import ensure_within_limit
 router = APIRouter()
 
 logger = get_logger(__name__)
+
+total_tokens = 0
 
 
 def get_llm_client(request: Request) -> LLMClient:
@@ -40,11 +41,13 @@ async def evaluate_resume(
     settings: Settings = Depends(get_settings),
     llm: LLMClient = Depends(get_llm_client),
 ) -> EvaluationResponse:
+    global total_tokens
+
     file_bytes = await resume.read()
 
     if len(file_bytes) > settings.max_upload_size_bytes:
         raise FileTooLargeError(
-            f"Resume exceeds the {settings.max_upload_size_mb}MB uplad limit.",
+            f"Resume exceeds the {settings.max_upload_size_mb}MB upload limit.",
             details={"size_bytes": len(file_bytes)},
         )
 
@@ -72,18 +75,28 @@ async def evaluate_resume(
     )
 
     # Calls #1 and #2 are independent — run them concurrently rather than sequentially.
-    resume_data, jd_data = await asyncio.gather(
+    (resume_data, resume_usage), (jd_data, jd_usage) = await asyncio.gather(
         extract_resume_data(llm, resume_text),
         extract_job_description_data(llm, jd_text),
     )
 
     # Call #3
-    evaluation = await evaluate_match(
+    evaluation, eval_usage = await evaluate_match(
         llm, resume_data=resume_data, job_description_data=jd_data
     )
 
+    total_tokens = (
+        total_tokens
+        + resume_usage["total_tokens"]
+        + jd_usage["total_tokens"]
+        + eval_usage["total_tokens"]
+    )
+
     logger.info(
-        "evaluation_completed", score=evaluation.score, verdict=evaluation.verdict.value
+        "evaluation_completed",
+        score=evaluation.score,
+        verdict=evaluation.verdict.value,
+        total_tokens=total_tokens,
     )
 
     return EvaluationResponse(

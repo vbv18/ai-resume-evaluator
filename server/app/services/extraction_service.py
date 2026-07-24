@@ -20,7 +20,7 @@ async def _extract_and_validate(
     content: str,
     model_cls: type[T],
     label: str,
-) -> T:
+) -> tuple[T, dict]:
     last_error: ValidationError | None = None
 
     for attempt in range(_MAX_VALIDATION_RETRIES + 1):
@@ -47,7 +47,9 @@ async def _extract_and_validate(
     )
 
 
-async def extract_resume_data(llm: LLMClient, resume_text: str) -> ResumeData:
+async def extract_resume_data(
+    llm: LLMClient, resume_text: str
+) -> tuple[ResumeData, dict]:
     return await _extract_and_validate(
         llm,
         system_prompt=RESUME_EXTRACTION_PROMPT,
@@ -59,7 +61,7 @@ async def extract_resume_data(llm: LLMClient, resume_text: str) -> ResumeData:
 
 async def extract_job_description_data(
     llm: LLMClient, jd_text: str
-) -> JobDescriptionData:
+) -> tuple[JobDescriptionData, dict]:
     return await _extract_and_validate(
         llm,
         system_prompt=JOB_DESCRIPTION_EXTRACTION_PROMPT,
