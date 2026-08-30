@@ -1,42 +1,23 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Resume Evaluator</title>
-</head>
-
-<body>
-    <h1>
-        AI Resume Evaluator
-    </h1>
-
-    <form id="resumeForm">
-        <div>
-            <label for="resume">Resume (PDF):</label><br>
-            <input type="file" id="resume" name="resume" accept=".pdf" required>
-        </div>
-
-        <br>
-
-        <div>
-            <label for="job_description">Job Description:</label><br>
-            <textarea id="job_description" name="job_description" rows="10" cols="60"
-                placeholder="Paste the job description here..." required></textarea>
-        </div>
-
-        <br>
-
-        <button type="submit">Submit</button>
-    </form>
-
-    <hr>
-
-    <h3>Response</h3>
-    <pre id="result"></pre>
-
-    <script src="./main.js"></script>
-</body>
-
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ResumeFit AI — Multi-Criteria Resume Evaluator</title>
+    <meta
+      name="description"
+      content="Production-grade AI Resume Evaluator and Optimizer. Benchmark resumes against job descriptions with deterministic scoring, ATS findings, and version auditing."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-background text-foreground antialiased selection:bg-primary/20">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
 </html>
