@@ -1,5 +1,4 @@
 from enum import Enum
-from signal import default_int_handler
 from pydantic import BaseModel, Field, field_validator
 
 
