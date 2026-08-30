@@ -26,7 +26,7 @@ class LLMClient:
         stop=stop_after_attempt(3),
         reraise=True,
     )
-    async def _create_completion(self, *, system_prompt: str, user_content: str) -> str:
+    async def _create_completion(self, *, system_prompt: str, user_content: str) -> dict:
         response = await self._client.chat.completions.create(
             model=self._model,
             temperature=0.1,
