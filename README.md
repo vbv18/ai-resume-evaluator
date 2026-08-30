@@ -23,30 +23,73 @@ All three calls run through a shared `LLMClient` (Groq) with automatic retries a
 - **structlog** — structured, queryable JSON logs (incl. per-request token usage)
 - **uvicorn** — ASGI server
 
-## Architecture
+## Repository structure
 
 ```
-app/
-├── api/v1/endpoints/   # HTTP layer — request validation, orchestration
-├── services/           # LLM client, resume parsing, extraction, evaluation
-├── models/schemas.py   # Pydantic contracts for every LLM output
-├── lib/prompts.py      # System prompts
-└── core/                # Settings, structured logging, error hierarchy
+ai-resume/
+├── client/                 # React 19 + Vite frontend
+└── server/                 # FastAPI backend
+    ├── app/
+    │   ├── api/v1/endpoints/   # HTTP layer — request validation, orchestration
+    │   ├── services/           # LLM client, resume parsing, extraction, evaluation
+    │   ├── models/schemas.py   # Pydantic contracts for every LLM output
+    │   ├── lib/prompts.py      # System prompts
+    │   ├── core/               # Settings, structured logging, error hierarchy
+    │   └── main.py             # FastAPI entrypoint
+    ├── pyproject.toml      # Project dependencies (managed with uv)
+    └── .env.sample         # Sample environment variables
 ```
 
 Errors are modeled as a typed exception hierarchy mapped to HTTP status codes, so failures (bad file type, oversized upload, LLM validation failure, provider error) return consistent, structured error responses instead of raw tracebacks.
 
 ## Running locally
 
+### 1. Server (FastAPI)
+
+#### Option A: Using `uv` (Recommended)
+
 ```bash
-uv sync            # or: pip install -e .
-cp .env.example .env   # add your GROQ_API_KEY
-uvicorn app.main:app --reload
+cd server
+uv sync
+cp .env.sample .env   # configure GROQ_API_KEY in .env
+uv run uvicorn app.main:app --reload --port 8000
 ```
 
-## API
+#### Option B: Using standard Python `venv`
 
-`POST /api/v1/evaluate` — multipart form: `resume` (PDF/DOCX file) + `job_description` (text). Returns structured `resume_data`, `job_description_data`, and `evaluation` (score, verdict, reasoning).
+**Windows (PowerShell):**
+```powershell
+cd server
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -e .    # or: pip install fastapi uvicorn groq pydantic pydantic-settings pymupdf python-docx python-dotenv python-multipart structlog tenacity tiktoken
+Copy-Item .env.sample .env
+uvicorn app.main:app --reload --port 8000
+```
+
+**macOS / Linux:**
+```bash
+cd server
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -e .
+cp .env.sample .env
+uvicorn app.main:app --reload --port 8000
+```
+
+### 2. Client (React + Vite)
+
+```bash
+cd client
+npm install
+npm run dev
+```
+
+## API Endpoints
+
+- `GET /api/v1/health` — Health check endpoint returning API status and environment.
+- `POST /api/v1/evaluate` — Multipart form upload: `resume` (PDF/DOCX file) + `job_description` (text, min 20 chars). Returns structured `resume_data`, `job_description_data`, and `evaluation` (score, verdict, reasoning).
+- Interactive documentation: Swagger UI at `http://localhost:8000/docs` and ReDoc at `http://localhost:8000/redoc` (when `ENVIRONMENT != production`).
 
 ## Roadmap
 
